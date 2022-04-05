@@ -1,0 +1,34 @@
+version: '3.9'
+
+networks:
+  laranet-network:
+    driver: bridge
+  
+services:
+  db-mysql:
+    image: mysql:8.0
+    command: --innodb-use-native-aio=0
+    container_name: db-mysql
+    restart: always
+    ports:
+        - "3306:3306"
+    volumes:
+        - ./.docker/dbdata:/var/lib/mysql
+    environment:
+        - MYSQL_DATABASE=publicacaodb
+        - MYSQL_ROOT_PASSWORD=123456
+    networks:
+        - laranet-network
+  
+  publicacao-api:
+    build: 
+        context: .
+    container_name: laravel-api
+    ports:
+        - "8000:8000"
+    volumes:
+        - .:/var/www/publicacao
+    networks:
+        - laranet-network
+    depends_on:
+        - db-mysql
